@@ -1,259 +1,450 @@
 #include "bluetooth.h"
+
 #include <Arduino.h>
-#include <BLEDevice.h>
-#include <BLEUtils.h>
-#include <BLEServer.h>
-#include <BLESecurity.h>
-#include <BLE2902.h>
+#include <NimBLEDevice.h>
+
 #include <time.h>
 #include <sys/time.h>
-#include <esp_bt_device.h>
-#include <esp_gap_ble_api.h>
+
+#if defined(CONFIG_NIMBLE_CPP_IDF)
+#include <host/ble_gap.h>
+#else
+#include <nimble/nimble/host/include/host/ble_gap.h>
+#endif
 #include "apple_media_service.h"
-#include "logger.h"
+#include "current_time_service.h"
 
-#define APPLE_SERVICE_UUID "89D3502B-0F36-433A-8EF4-C502AD55F8DC"
+// <<< set this to your phone's BLE name if you know it >>>
+// static const char *const kTargetName = "IPhone 13"; // change to your phone name
 
-namespace Bluetooth {
-  namespace {
-    bool DeviceConnected = false;
-    bool OldDeviceConnected = false;
-    bool AuthenticationComplete = false;
-    bool Ended = true;
-    BLEServer * Server = nullptr;
-    BLEAddress * iPhoneAddress = nullptr;
-    BLEClient * Client = nullptr;
-    BLESecurity Security {};
-    RTC_DATA_ATTR bool TimeSet = false;
+// "Підпис" твого айфона – префікс manufacturer data
+static const uint8_t kMyIphoneMfgPrefix[] = {
+    0x4c, 0x00, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00
+    // можна скоротити / розширити при потребі
+};
+// AMS candidate (first Apple device): Name: , Address: dc:b5:4f:a6:69:9c, manufacturer data: 4c0010077f1fd4c3a8f948, txPower: 12
+// Service: trying to connect to AMS target
+// Connecting to AMS device: dc:b5:4f:a6:69:9c
+// E NimBLEClient: Connection failed; status=13
+// Client connect failed
+// Restarting scan after failed connect
+// [TIME] 2036-12-28 07:42:44
+// I NimBLEScan: New advertiser: 1c:86:9a:ae:a5:43
+// Result: Name: , Address: 1c:86:9a:ae:a5:43, manufacturer data: 750042040180661c869aaea5431e869aaea54201000000000000
+// I NimBLEScan: New advertiser: 63:f1:9e:a2:05:0c
+// Result: Name: , Address: 63:f1:9e:a2:05:0c, manufacturer data: 4c0009081375c0a864231b581608001537abdbe6a113
+// AMS candidate (first Apple device): Name: , Address: 63:f1:9e:a2:05:0c, manufacturer data: 4c0009081375c0a864231b581608001537abdbe6a113
+// Service: trying to connect to AMS target
+// Connecting to AMS device: 63:f1:9e:a2:05:0c
 
-    class GetAddressServerCallbacks: public BLEServerCallbacks {
-      public: void onConnect(BLEServer * server, esp_ble_gatts_cb_param_t * param) override {
-        LOG_TRACE("onConnect CB");
-        if (iPhoneAddress) {
-          delete iPhoneAddress;
-          iPhoneAddress = nullptr;
+#define APPLE_MUSIC_SERVICE_UUID "89D3502B-0F36-433A-8EF4-C502AD55F8DC"
+
+#define ANCS_SERVICE_UUID "7905F431-B5CE-4E99-A40F-4B1E122D00D0"
+
+#define DELSOL_VEHICLE_SERVICE_UUID "8fb88487-73cf-4cce-b495-505a4b54b802"
+#define DELSOL_STATUS_CHARACTERISTIC_UUID "40d527f5-3204-44a2-a4ee-d8d3c16f970e"
+#define DELSOL_BATTERY_CHARACTERISTIC_UUID "5c258bb8-91fc-43bb-8944-b83d0edc9b43"
+
+#define DELSOL_LOCATION_SERVICE_UUID "61d33c70-e3cd-4b31-90d8-a6e14162fffd"
+#define DELSOL_NAVIGATION_SERVICE_UUID "77f5d2b5-efa1-4d55-b14a-cc92b72708a0"
+namespace Bluetooth
+{
+    namespace
+    {
+        // --- State ---
+
+        bool Ended = true;
+        bool Connected = false;
+
+        BLEClient *Client = nullptr; // NimBLE client (BLEClient macro)
+        BLEAddress TargetAddr;       // AMS device address
+        bool TargetFound = false;
+
+        RTC_DATA_ATTR bool TimeSet = false;
+
+        // --- Scan callback: look for Apple Media Service UUID ---
+        // --- Connect to AMS peripheral and start AMS + CTS ---
+        static void dumpMfgHex(const std::string &mfg)
+        {
+            Serial.print("  mfg hex: ");
+            for (uint8_t c : mfg)
+            {
+                char buf[4];
+                sprintf(buf, "%02X", c);
+                Serial.print(buf);
+            }
+            Serial.println();
         }
-        iPhoneAddress = new BLEAddress(param -> connect.remote_bda);
+        class AmsScanCallbacks : public NimBLEScanCallbacks
+        {
+        public:
+            // Optional – you can ignore this if you don’t care about early hits
+            void onDiscovered(const NimBLEAdvertisedDevice *dev) override
+            {
+                // You can leave empty or log:
+                // Serial.printf("Discovered: %s\n", dev->toString().c_str());
+            }
 
-        DeviceConnected = true;
-      };
+            // This is where we actually look for AMS
+            void onResult(const NimBLEAdvertisedDevice *dev) override
+            {
+                if (TargetFound)
+                    return;
 
-      void onDisconnect(BLEServer * server) override {
-        LOG_TRACE("onDisconnect CB");
-        DeviceConnected = false;
-      }
-    };
+                const std::string name = dev->getName();
 
-    class NotificationSecurityCallbacks: public BLESecurityCallbacks {
-      uint32_t onPassKeyRequest() override {
-        LOG_TRACE("PassKeyRequest");
-        return 123456;
-      }
-      void onPassKeyNotify(uint32_t pass_key) override {
-        LOG_TRACE("On passkey Notify number: %d", pass_key);
-      }
+                // Debug
+                //  Serial.printf("Result: %s\n", dev->toString().c_str());
 
-      bool onSecurityRequest() override {
-        LOG_TRACE("On Security Request");
-        return true;
-      }
+                // Always log what we see – this is super useful:
+                Serial.printf("Result: %s\n", dev->toString().c_str());
+                // Serial.printf("Name='%s', Address='%s', MfgData='%s'\n",
+                //                               name.c_str(),
+                //                               address.c_str(),
+                //                               mfg.c_str());
+                // 0) Переконаймось, що пристрій взагалі коннектимий
+                if (!dev->isConnectable())
+                {
+                    Serial.println("  -> not connectable, ignoring");
+                    return;
+                } 
+                const std::string address = dev->getAddress().toString();
+                const std::string mfg = dev->getManufacturerData();
+                dumpMfgHex(mfg);
+                
+                if (mfg.size() < sizeof(kMyIphoneMfgPrefix))
+                {
+                    Serial.println("  -> mfg too short, ignoring");
+                    return;
+                }
 
-      bool onConfirmPIN(unsigned int) override {
-        LOG_TRACE("On Confirmed Pin Request");
-        return true;
-      }
+                // 1) Перевіряємо Apple company ID (перші 2 байти)
+                uint16_t company =
+                    (uint8_t)mfg[0] | ((uint8_t)mfg[1] << 8);
 
-      void onAuthenticationComplete(esp_ble_auth_cmpl_t cmpl) override {
-        if (cmpl.success) {
-          LOG_DEBUG("Authentication Successful!");
-          uint16_t length;
-          esp_ble_gap_get_whitelist_size( & length);
-          LOG_TRACE("size: %d", length);
-          AuthenticationComplete = true;
-        } else {
-          LOG_ERROR("Authentication failed. reason: %u, auth_mode: %u, key_present: %u, key_type: %u", cmpl.fail_reason,
-            cmpl.auth_mode, cmpl.key_present, cmpl.key_type);
+                bool isApple = (company == 0x004C);
+                Serial.printf("  IsApple=%d\n", isApple ? 1 : 0);
+
+                if (!isApple)
+                {
+                    return;
+                }
+
+                // 2) Перевіряємо, чи збігається префікс з нашим айфоном
+                if (memcmp(mfg.data(), kMyIphoneMfgPrefix,
+                           sizeof(kMyIphoneMfgPrefix)) != 0)
+                {
+                    Serial.println("  -> Apple but not my mfg prefix, continue but");
+                return;
+                }
+
+                // 3) (Опційно) Додатково звузити по serviceUUID its spotify id????
+                static const NimBLEUUID kMyService("3e1d50cd-7e3e-427d-8e1c-b78aa87fe624");
+
+                if (dev->haveServiceUUID() && dev->isAdvertisingService(kMyService))
+                {
+                    Serial.println("  -> mfg prefix + my serviceUUID match, selecting target");
+                }
+                else
+                {
+                    Serial.println("  -> mfg prefix ok but serviceUUID mismatch, but continue");
+                   return;// return;
+                }
+
+                Serial.print("AMS candidate founded: ");
+                Serial.println(dev->toString().c_str());
+                TargetAddr = dev->getAddress();
+                TargetFound = true;
+                NimBLEDevice::getScan()->stop();
+            }
+
+            // NOTE: signature must match: const ref + reason
+            void onScanEnd(const NimBLEScanResults &results, int reason) override
+            {
+                Serial.printf("Scan ended, found %d devices, reason=%d\n",
+                              results.getCount(), reason);
+            }
+        };
+
+        bool ConnectToAms()
+        {
+            if (!TargetFound)
+            {
+                Serial.println("ConnectToAms: no target found yet");
+                return false;
+            }
+
+            if (Client)
+            {
+                Serial.println("ConnectToAms: deleting existing client");
+                NimBLEDevice::deleteClient(Client);
+                Client = nullptr;
+            }
+
+            Serial.print("Connecting to AMS device: ");
+            Serial.println(TargetAddr.toString().c_str());
+
+            Client = NimBLEDevice::createClient();
+            if (!Client)
+            {
+                Serial.println("Failed to create client");
+                return false;
+            }
+
+            if (!Client->connect(TargetAddr))
+            {
+                Serial.println("Client connect failed");
+                NimBLEDevice::deleteClient(Client);
+                Client = nullptr;
+
+                Connected = false;
+                TargetFound = false;
+
+                NimBLEScan *s = NimBLEDevice::getScan();
+                if (s)
+                {
+                    Serial.println("Restarting scan after failed connect");
+                    s->start(0, false, false);
+                }
+                return false;
+            }
+
+            Serial.println("Client connected to AMS device");
+
+            // Start encryption / bonding
+            // if(!NimBLEDevice::startSecurity(Client->getConnHandle())){
+            //     Serial.println("Failed to start security (bonding)");
+            //     Client->disconnect();
+            //     NimBLEDevice::deleteClient(Client);
+            //     Client = nullptr;
+
+            //     Connected = false;
+            //     TargetFound = false;
+
+            //     NimBLEScan *s = NimBLEDevice::getScan();
+            //     if (s)
+            //     {
+            //         Serial.println("Restarting scan after failed bonding");
+            //         s->start(0, false, false);
+            //     }
+            //     return false;
+            // };
+
+            // Synchronous security: fail fast if pairing/encryption fails
+            if (!Client->secureConnection()) {
+                Serial.println("Failed to secure connection (pairing/encryption)");
+                Client->disconnect();
+                NimBLEDevice::deleteClient(Client);
+                Client = nullptr;
+
+                Connected   = false;
+                TargetFound = false;
+
+                NimBLEScan *s = NimBLEDevice::getScan();
+                if (s) {
+                    Serial.println("Restarting scan after failed secureConnection");
+                    s->start(0, false, false);
+                }
+                return false;
+            }
+            // --- Apple Media Service ---
+            if (!AppleMediaService::StartMediaService(Client))
+            {
+                Serial.println("StartMediaService failed (AMS not available?)");
+
+                Client->disconnect();
+                NimBLEDevice::deleteClient(Client);
+                Client = nullptr;
+
+                Connected = false;
+                TargetFound = false;
+
+                NimBLEScan *s = NimBLEDevice::getScan();
+                if (s)
+                {
+                    Serial.println("Restarting scan after bad AMS device");
+                    s->start(0, false, false);
+                }
+                return false;
+            }
+            else
+            {
+                Serial.println("AMS started");
+            }
+
+            // --- Current Time Service ---
+            CurrentTimeService::CurrentTime time;
+            if (!CurrentTimeService::StartTimeService(Client, &time))
+            {
+                Serial.println("StartTimeService failed");
+            }
+            else
+            {
+                timeval new_time;
+                new_time.tv_sec = time.ToTimeT();
+                new_time.tv_usec = static_cast<long>(time.mSecondsFraction * 1000000.0f);
+
+                Serial.printf("TIME: unix=%ld, usec=%ld\n",
+                              (long)new_time.tv_sec,
+                              (long)new_time.tv_usec);
+
+                if (settimeofday(&new_time, nullptr) != 0)
+                {
+                    Serial.println("Error setting time of day");
+                }
+                else
+                {
+                    TimeSet = true;
+                }
+
+                time.Dump();
+            }
+
+            Connected = true;
+            Serial.println("ConnectToAms finished");
+            return true;
         }
-      }
-    };
 
-    void setServiceSolicitation(BLEAdvertisementData & advertisement_data, BLEUUID uuid) {
-      char c_data[2];
-      switch (uuid.bitSize()) {
-      case 16: {
-        // [Len] [0x14] [UUID16] data
-        c_data[0] = 3;
-        c_data[1] = ESP_BLE_AD_TYPE_SOL_SRV_UUID; // 0x14
-        advertisement_data.addData(std::string(c_data, 2) + std::string((char * ) & uuid.getNative() -> uuid.uuid16, 2));
-        break;
-      }
+    } // anonymous namespace
 
-      case 128: {
-        // [Len] [0x15] [UUID128] data
-        c_data[0] = 17;
-        c_data[1] = ESP_BLE_AD_TYPE_128SOL_SRV_UUID; // 0x15
-        advertisement_data.addData(std::string(c_data, 2) + std::string((char * ) uuid.getNative() -> uuid.uuid128, 16));
-        break;
-      }
+    // ---------------------------------------------------------------------
+    // Public API
+    // ---------------------------------------------------------------------
+ void ClearBonds()
+    {
+        Serial.println("[BLE] Clearing all BLE bonds...");
 
-      default:
-        return;
-      }
+        // Remove all stored bonds from NVS
+        NimBLEDevice::deleteAllBonds();
+
+        // If we have a client, disconnect and delete it
+        if (Client) {
+            if (Client->isConnected()) {
+                Serial.println("[BLE] Disconnecting active client...");
+                Client->disconnect();
+            }
+            NimBLEDevice::deleteClient(Client);
+            Client = nullptr;
+        }
+
+        // Reset state flags
+        Connected   = false;
+        TargetFound = false;
+        TimeSet     = false;
+
+        // Restart scan if BLE still initialized
+        NimBLEScan *scan = NimBLEDevice::getScan();
+        if (scan) {
+            Serial.println("[BLE] Restarting scan after clearbonds...");
+            scan->start(0, false, false);
+        }
+
+        Serial.println("[BLE] Bonds cleared. On iPhone: Settings → Bluetooth → Forget this device, then re-pair.");
+    }
+    void Begin(const std::string &device_name)
+    {
+        Serial.println("Bluetooth::Begin() AMS central-only");
+        esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
+
+        Ended = false;
+        Connected = false;
+        TimeSet = false;
+        TargetFound = false;
+
+        NimBLEDevice::init(device_name);
+        // Serial.println("Deleting all BLE bonds...");
+       //  NimBLEDevice::deleteAllBonds();
+
+        // // // Security: bonding + LE Secure Connections, no MITM
+        // static MySecurityCallbacks securityCallbacks;
+        // NimBLEDevice::startSecurity setSecurityCallbacks(&securityCallbacks);
+        // Security: bonding + LE Secure Connections, no MITM
+        NimBLEDevice::setSecurityAuth(/*bonding=*/true, /*mitm=*/false, /*sc=*/true);
+        NimBLEDevice::setSecurityIOCap(BLE_HS_IO_DISPLAY_ONLY);
+        NimBLEDevice::setSecurityInitKey(BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID);
+        NimBLEDevice::setSecurityRespKey(BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID);
+        NimBLEDevice::setSecurityPasskey(123456); // optional fixed PIN
+
+        // Clear any old, possibly broken bonds
+        //   NimBLEDevice::deleteAllBonds();
+
+        NimBLEScan *scan = NimBLEDevice::getScan();
+        static AmsScanCallbacks cb;
+
+        scan->setScanCallbacks(&cb);
+        scan->setActiveScan(true);
+        scan->setInterval(45);
+        scan->setWindow(30);
+        scan->setDuplicateFilter(false);
+        scan->setFilterPolicy(BLE_HCI_SCAN_FILT_NO_WL);
+        scan->start(0, /*isContinue=*/false, /*restart=*/false); // ms; 0 = forever
+
+        Serial.println("Bluetooth::Begin finished (scanning for AMS)");
     }
 
-    void HandleConnection() {
-      if (!iPhoneAddress)
-        return;
+    void End()
+    {
+        Serial.println("Bluetooth::End()");
 
-      if (Client) {
-        LOG_WARN("HandleConnection: Client already exists, deleteing.");
-        delete Client;
-        Client = nullptr;
-      }
+        Ended = true;
+        Connected = false;
+        TargetFound = false;
 
-      Client = BLEDevice::createClient();
+        NimBLEScan *scan = NimBLEDevice::getScan();
+        if (scan)
+            scan->stop();
 
-      Security.setAuthenticationMode(ESP_LE_AUTH_REQ_SC_BOND);
-      Security.setCapability(ESP_IO_CAP_IO);
-      Security.setRespEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
-      LOG_TRACE("set security details");
+        if (Client)
+        {
+            Client->disconnect();
+            NimBLEDevice::deleteClient(Client);
+            Client = nullptr;
+        }
 
-      if (!Client -> connect( * iPhoneAddress)) {
-        LOG_ERROR("failed to connect");
-        delete Client;
-        Client = nullptr;
-        return;
-      }
-      LOG_TRACE("connected using client!");
-
-      LOG_TRACE("Waiting for authentication");
-      while (!AuthenticationComplete && Client -> isConnected()) {
-        LOG_TRACE(".");
-        delay(100);
-      }
-      LOG_TRACE("Authentication finished");
-      delay(100);
-      if (!Client -> isConnected()) {
-        LOG_WARN("client disconnected during authentication.");
-        delete Client;
-        Client = nullptr;
-        return;
-      }
-
-      if (!AppleMediaService::StartMediaService(Client)) {
-        Client -> disconnect();
-        delete Client;
-        Client = nullptr;
-        LOG_ERROR("StartMediaService failed");
-        return;
-      }
-    }
-  }
-
-  void Begin(const std::string & device_name) {
-    LOG_TRACE("Bluetooth::Begin()");
-    btStart();
-    Ended = false;
-    BLEDevice::init(device_name);
-    Server = BLEDevice::createServer();
-    Server -> setCallbacks(new GetAddressServerCallbacks());
-
-    const uint8_t * address = esp_bt_dev_get_address();
-    if (address) {
-      LOG_DEBUG("public device address:  %02X %02X %02X %02X %02X %02X %02X %02X", address[0], address[1], address[2],
-        address[3], address[4], address[5]);
-    } else {
-      LOG_ERROR("public device address null");
+        NimBLEDevice::deinit(true);
     }
 
-    esp_bd_addr_t local_address;
-    uint8_t address_type;
-    if (esp_ble_gap_get_local_used_addr(local_address, & address_type) == ESP_OK) {
-      LOG_DEBUG("public device address:  %02X %02X %02X %02X %02X %02X %02X %02X. Type: %u", local_address[0], local_address[1],
-        local_address[2], local_address[3], local_address[4], local_address[5], address_type);
-    } else {
-      LOG_ERROR("failed to get local address");
+    void Service()
+    {
+        if (Ended)
+            return;
+
+        // If we had a client and it dropped, clean up and rescan
+        if (Client && !Client->isConnected())
+        {
+            Serial.println("Service: client disconnected, cleaning up");
+            NimBLEDevice::deleteClient(Client);
+            Client = nullptr;
+
+            Connected = false;
+            TimeSet = false;
+            TargetFound = false;
+
+            NimBLEScan *scan = NimBLEDevice::getScan();
+            if (scan && !scan->isScanning())
+            {
+                Serial.println("Service: restarting scan");
+                scan->start(0, false, false);
+            }
+        }
+
+        // If not connected but target is found → try to connect
+        if ((!Client || !Client->isConnected()) && TargetFound)
+        {
+            Serial.println("Service: trying to connect to AMS target");
+            ConnectToAms();
+        }
     }
 
-    BLEDevice::setEncryptionLevel(ESP_BLE_SEC_ENCRYPT);
-    BLEDevice::setSecurityCallbacks(new NotificationSecurityCallbacks());
-
-    BLEAdvertising * advertising = Server -> getAdvertising();
-    advertising -> setAppearance(0x03C1);
-    advertising -> setScanResponse(true);
-
-    BLEAdvertisementData oAdvertisementData = BLEAdvertisementData();
-    //BLEAdvertisementData scan_response_data;
-    oAdvertisementData.setFlags(0x01);
-
-    setServiceSolicitation(oAdvertisementData, BLEUUID(APPLE_SERVICE_UUID));
-
-    //auto before = oAdvertisementData.getPayload().size();
-    //auto after = oAdvertisementData.getPayload().size();
-    //LOG_TRACE("advertising size before %i, after %i", before, after);
-    
-    advertising -> setAdvertisementData(oAdvertisementData);
-    //advertising -> setScanResponseData(scan_response_data);
-
-    // TODO: Figure out what this does, and why we set it twice.
-    Security.setAuthenticationMode(ESP_LE_AUTH_REQ_SC_BOND);
-    Security.setCapability(ESP_IO_CAP_OUT); // This value changes between server and client. Is it needed?
-    Security.setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK); // not sure how this is used either.
-    advertising -> start();
-  }
-  void End() {
-    Ended = true;
-    if (Client) {
-      Client -> disconnect();
-      delete Client;
-      Client = nullptr;
-    }
-    DeviceConnected = false;
-    OldDeviceConnected = false;
-    if (Server) {
-      auto advertising = Server -> getAdvertising();
-      if (advertising) {
-        advertising -> stop();
-      }
-      delete Server;
-      Server = nullptr;
+    bool IsConnected()
+    {
+        return Connected && Client && Client->isConnected();
     }
 
-    if (iPhoneAddress) {
-      delete iPhoneAddress;
-      iPhoneAddress = nullptr;
+    bool IsTimeSet()
+    {
+        return TimeSet;
     }
 
-    BLEDevice::deinit(true);
-  }
-
-  void Service() {
-    if (Ended) {
-      return;
-    }
-    if (!DeviceConnected && OldDeviceConnected) {
-      // device disconnected.
-      delay(500); // give the bluetooth stack the chance to get things ready
-      if (Client) {
-        Client -> disconnect();
-        delete Client;
-        Client = nullptr;
-      }
-      AuthenticationComplete = false;
-      Server -> startAdvertising(); // restart advertising
-      LOG_DEBUG("disconnected, restart advertising");
-      OldDeviceConnected = DeviceConnected;
-    } else if (DeviceConnected && !OldDeviceConnected) {
-      // do stuff here on connecting
-      OldDeviceConnected = DeviceConnected;
-      LOG_DEBUG("connected!");
-      HandleConnection();
-      LOG_TRACE("HandleConnection returned");
-    }
-  }
-
-  bool IsConnected() {
-    return DeviceConnected && OldDeviceConnected;
-  }
-
-}
+} // namespace Bluetooth

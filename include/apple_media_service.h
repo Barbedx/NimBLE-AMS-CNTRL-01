@@ -1,73 +1,115 @@
 #pragma once
 #include <string>
 #include <functional>
-
-#define RemoteCommandIDPlay 0
-#define RemoteCommandIDPause 1
-#define RemoteCommandIDTogglePlayPause 2
-#define RemoteCommandIDNextTrack 3
-#define RemoteCommandIDPreviousTrack 4
-#define RemoteCommandIDVolumeUp 5
-#define RemoteCommandIDVolumeDown 6
-#define RemoteCommandIDAdvanceRepeatMode 7
-#define RemoteCommandIDAdvanceShuffleMode 8
-#define RemoteCommandIDSkipForward 9
-#define RemoteCommandIDSkipBackward 10
-#define RemoteCommandIDLikeTrack 11
-#define RemoteCommandIDDislikeTrack 12
-#define RemoteCommandIDBookmarkTrack 13
+#include <Arduino.h>
+ 
 
 class BLEClient;
 
-namespace AppleMediaService {
-  struct MediaInformation {
-    enum class PlaybackState: uint8_t {
-      Paused = 0,
-      Playing = 1,
-      Rewinding = 2,
-      FastForwarding = 3
+namespace AppleMediaService
+{
+    // Remote commands supported by AMS
+    enum class RemoteCommandID : uint8_t
+    {
+        Play = 0,
+        Pause = 1,
+        TogglePlayPause = 2,
+        NextTrack = 3,
+        PreviousTrack = 4,
+        VolumeUp = 5,
+        VolumeDown = 6,
+        AdvanceRepeatMode = 7,
+        AdvanceShuffleMode = 8,
+        SkipForward = 9,
+        SkipBackward = 10,
+        LikeTrack = 11,
+        DislikeTrack = 12,
+        BookmarkTrack = 13,
     };
 
-    enum class ShuffleMode: uint8_t {
-      Off = 0,
-      One = 1,
-      All = 2
+    struct MediaInformation
+    {
+        enum class PlaybackState : uint8_t
+        {
+            Paused = 0,
+            Playing = 1,
+            Rewinding = 2,
+            FastForwarding = 3
+        };
+
+        enum class ShuffleMode : uint8_t
+        {
+            Off = 0,
+            One = 1,
+            All = 2
+        };
+
+        enum class RepeatMode : uint8_t
+        {
+            Off = 0,
+            One = 1,
+            All = 2
+        };
+        // PlayerAttributeID
+        std::string mPlayerName;
+        PlaybackState mPlaybackState;
+        float mPlaybackRate;
+        float mElapsedTime;
+        float mVolume;
+        // QueueAttributeID
+        int mQueueIndex;
+        int mQueueCount;
+        ShuffleMode mShuffleMode;
+        RepeatMode mRepeatMode;
+        // TrackAttributeID
+        std::string mArtist;
+        std::string mAlbum;
+        std::string mTitle;
+        float mDuration;
+
+        void dump() const
+        {
+             Serial.printf("player: %s\n", mPlayerName.c_str()); //TODO:add log
+             Serial.printf("playback state: %i, rate: %f, elapsed: %f, volume: %f\n", mPlaybackState, mPlaybackRate, mElapsedTime, mVolume);
+             Serial.printf("queue index: %i, count: %i, shuffle: %i, repeat: %i\n", mQueueIndex, mQueueCount, mShuffleMode, mRepeatMode);
+             Serial.printf("artist: %s\n", mArtist.c_str());
+             Serial.printf("album: %s\n", mAlbum.c_str());
+             Serial.printf("title: %s\n", mTitle.c_str());
+             Serial.printf("duration: %f\n", mDuration);
+        }
     };
 
-    enum class RepeatMode: uint8_t {
-      Off = 0,
-      One = 1,
-      All = 2
+    using NotificationCb = std::function<void(const MediaInformation &)>;
+
+    enum class NotificationLevel
+    {
+        All,           // get notified anytime anything changes. Probably too noisey.
+        TrackTitleOnly // only get notified when the track title is set.
     };
-    // PlayerAttributeID
-    std::string mPlayerName;
-    PlaybackState mPlaybackState;
-    float mPlaybackRate;
-    float mElapsedTime;
-    float mVolume;
-    // QueueAttributeID
-    int mQueueIndex;
-    int mQueueCount;
-    ShuffleMode mShuffleMode;
-    RepeatMode mRepeatMode;
-    // TrackAttributeID
-    std::string mArtist;
-    std::string mAlbum;
-    std::string mTitle;
-    float mDuration;
+    // overwrites existing notification if set.
+    void RegisterForNotifications(const NotificationCb &callback, NotificationLevel level);
+    const MediaInformation &GetMediaInformation();
+    bool setRemoteCommandValue(uint8_t commandID);
+    // Low-level sender (wraps your existing setRemoteCommandValue)
+    inline bool SendRemoteCommand(RemoteCommandID cmd)
+    {
+        return setRemoteCommandValue(static_cast<uint8_t>(cmd));
+    }
+    // Convenience helpers
+    inline bool Play() { return SendRemoteCommand(RemoteCommandID::Play); }
+    inline bool Pause() { return SendRemoteCommand(RemoteCommandID::Pause); }
+    inline bool Toggle() { return SendRemoteCommand(RemoteCommandID::TogglePlayPause); }
+    inline bool NextTrack() { return SendRemoteCommand(RemoteCommandID::NextTrack); }
+    inline bool PrevTrack() { return SendRemoteCommand(RemoteCommandID::PreviousTrack); }
+    inline bool VolumeUp() { return SendRemoteCommand(RemoteCommandID::VolumeUp); }
+    inline bool VolumeDown() { return SendRemoteCommand(RemoteCommandID::VolumeDown); }
+    inline bool SkipForward() { return SendRemoteCommand(RemoteCommandID::SkipForward); }
+    inline bool SkipBack() { return SendRemoteCommand(RemoteCommandID::SkipBackward); }
+    inline bool AdvanceRepeatMode() { return SendRemoteCommand(RemoteCommandID::AdvanceRepeatMode); }
+    inline bool AdvanceShuffleMode() { return SendRemoteCommand(RemoteCommandID::AdvanceShuffleMode); }
+    inline bool LikeTrack() { return SendRemoteCommand(RemoteCommandID::LikeTrack); }
+    inline bool DislikeTrack() { return SendRemoteCommand(RemoteCommandID::DislikeTrack); }
+    inline bool BookmarkTrack() { return SendRemoteCommand(RemoteCommandID::BookmarkTrack); }
 
-    void dump() const;
-  };
-
-  using NotificationCb = std:: function < void() > ;
-
-  enum class NotificationLevel {
-    All, // get notified anytime anything changes. Probably too noisey.
-    TrackTitleOnly, // only get notified when the track title is set.
-  };
-  // overwrites existing notification if set.
-  void RegisterForNotifications(const NotificationCb & callback, NotificationLevel level);
-  const MediaInformation & GetMediaInformation();
-  void setRemoteCommandValue(uint8_t commandID);
-  bool StartMediaService(BLEClient * client);
+    bool StartMediaService(BLEClient *client);
 }
