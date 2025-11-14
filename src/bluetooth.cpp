@@ -98,7 +98,7 @@ namespace Bluetooth
                 //  Serial.printf("Result: %s\n", dev->toString().c_str());
 
                 // Always log what we see – this is super useful:
-                Serial.printf("Result: %s\n", dev->toString().c_str());
+        //        Serial.printf("Result: %s\n", dev->toString().c_str());
                 // Serial.printf("Name='%s', Address='%s', MfgData='%s'\n",
                 //                               name.c_str(),
                 //                               address.c_str(),
@@ -106,16 +106,16 @@ namespace Bluetooth
                 // 0) Переконаймось, що пристрій взагалі коннектимий
                 if (!dev->isConnectable())
                 {
-                    Serial.println("  -> not connectable, ignoring");
+                 //   Serial.println("  -> not connectable, ignoring");
                     return;
                 } 
                 const std::string address = dev->getAddress().toString();
                 const std::string mfg = dev->getManufacturerData();
-                dumpMfgHex(mfg);
+          //      dumpMfgHex(mfg);
                 
                 if (mfg.size() < sizeof(kMyIphoneMfgPrefix))
                 {
-                    Serial.println("  -> mfg too short, ignoring");
+                 //   Serial.println("  -> mfg too short, ignoring");
                     return;
                 }
 
@@ -124,7 +124,7 @@ namespace Bluetooth
                     (uint8_t)mfg[0] | ((uint8_t)mfg[1] << 8);
 
                 bool isApple = (company == 0x004C);
-                Serial.printf("  IsApple=%d\n", isApple ? 1 : 0);
+        //        Serial.printf("  IsApple=%d\n", isApple ? 1 : 0);
 
                 if (!isApple)
                 {
@@ -135,7 +135,7 @@ namespace Bluetooth
                 if (memcmp(mfg.data(), kMyIphoneMfgPrefix,
                            sizeof(kMyIphoneMfgPrefix)) != 0)
                 {
-                    Serial.println("  -> Apple but not my mfg prefix, continue but");
+  //                  Serial.println("  -> Apple but not my mfg prefix, continue but");
                 return;
                 }
 
@@ -148,7 +148,7 @@ namespace Bluetooth
                 }
                 else
                 {
-                    Serial.println("  -> mfg prefix ok but serviceUUID mismatch, but continue");
+   //                 Serial.println("  -> mfg prefix ok but serviceUUID mismatch, but continue");
                    return;// return;
                 }
 
@@ -360,11 +360,18 @@ namespace Bluetooth
         // static MySecurityCallbacks securityCallbacks;
         // NimBLEDevice::startSecurity setSecurityCallbacks(&securityCallbacks);
         // Security: bonding + LE Secure Connections, no MITM
-        NimBLEDevice::setSecurityAuth(/*bonding=*/true, /*mitm=*/false, /*sc=*/true);
-        NimBLEDevice::setSecurityIOCap(BLE_HS_IO_DISPLAY_ONLY);
-        NimBLEDevice::setSecurityInitKey(BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID);
-        NimBLEDevice::setSecurityRespKey(BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID);
-        NimBLEDevice::setSecurityPasskey(123456); // optional fixed PIN
+        // NimBLEDevice::setSecurityAuth(/*bonding=*/true, /*mitm=*/false, /*sc=*/true);
+        NimBLEDevice::setSecurityAuth(/*bonding=*/false, /*mitm=*/false, /*sc=*/true); 
+        //AMS NO BOUNDING  its actually woirks, but asks for permission each time. I'm ok with that for now.
+        //to init connection we have to open spotify on mobile. for some reasone it will translate some ble service with spiotify uid 
+        // LEts figure out! 
+        // NimBLEDevice::setSecurityIOCap(BLE_HS_IO_DISPLAY_ONLY);
+        // NimBLEDevice::setSecurityInitKey(BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID);
+        // NimBLEDevice::setSecurityRespKey(BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID);
+        // NimBLEDevice::setSecurityPasskey(123456); // optional fixed PIN
+
+        // No input/output → iOS does “Just Works” pairing
+        NimBLEDevice::setSecurityIOCap(BLE_HS_IO_NO_INPUT_OUTPUT);
 
         // Clear any old, possibly broken bonds
         //   NimBLEDevice::deleteAllBonds();
