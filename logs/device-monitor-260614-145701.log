@@ -1,0 +1,819 @@
+[   192][V][WiFiServer.h:42] WiFiServer(): WiFiServer::WiFiServeBluetooth::Begin() AMS central + bonding
+Bluetooth::Begin finished (bonds stored: 0)
+[  1273][D][WiFiGeneric.cpp:1040] _eventCallback(): Arduino Event: 0 - WIFI_READY
+[  1285][V][WiFiGeneric.cpp:393] _arduino_event_cb(): AP Started
+[  1291][D][WiFiGeneric.cpp:1040] _eventCallback(): Arduino Event: 10 - AP_START
+[  1299][V][WiFiGeneric.cpp:97] set_esp_interface_ip(): Configuring SoftAP static IP: 192.168.4.1, MASK: 255.255.255.0, GW: 192.168.4.1
+[  1311][V][WiFiGeneric.cpp:143] set_esp_interface_ip(): SoftAP: 192.168.4.1 | Gateway: 192.168.4.1 | DHCP Start: 0.0.0.0 | Netmask: 255.255.255.0
+[  1325][V][WiFiGeneric.cpp:190] set_esp_interface_ip(): DHCP Server Range: 192.168.4.2 to 192.168.4.12
+[  1335][V][WiFiGeneric.cpp:396] _arduino_event_cb(): AP Stopped
+[  1621][D][WiFiGeneric.cpp:1040] _eventCallback(): Arduino Event: 11 - AP_STOP
+[  1629][V][WiFiGeneric.cpp:393] _arduino_event_cb(): AP Started
+[  1635][D][WiFiGeneric.cpp:1040] _eventCallback(): Arduino Event: 10 - AP_START
+WiFi AP 'CTRL 01 Setup' started, IP: 192.168.4.1
+Setup portal web server started
+==== ESP Chip Information ====
+Model: ESP32-C
+Cores: 1
+Revision: 4
+Features bitmask: 0x12
+Classic Bluetooth: ❌ not available
+BLE (Bluetooth Low Energy): ✅ supported
+================================
+[TIME] 1970-01-01 00:05:22
+[TIME] 1970-01-01 00:05:32
+[TIME] 1970-01-01 00:05:42
+[TIME] 1970-01-01 00:05:52
+[TIME] 1970-01-01 00:06:02
+[TIME] 1970-01-01 00:06:12
+[ 65814][V][WiFiGeneric.cpp:408] _arduino_event_cb(): AP Station Connected: MAC: ba:9f:23:76:7c:02, AID: 1
+[ 65823][D][WiFiGeneric.cpp:1040] _eventCallback(): Arduino Event: 12 - AP_STACONNECTED
+[ 67083][V][WiFiGeneric.cpp:422] _arduino_event_cb(): AP Station IP Assigned:192.168.4.2
+[ 67091][D][WiFiGeneric.cpp:1040] _eventCallback(): Arduino Event: 14 - AP_STAIPASSIGNED
+[TIME] 1970-01-01 00:06:22
+[ 74096][V][WiFiGeneric.cpp:422] _arduino_event_cb(): AP Station IP Assigned:192.168.4.2
+[ 74104][D][WiFiGeneric.cpp:1040] _eventCallback(): Arduino Event: 14 - AP_STAIPASSIGNED
+[ 76458][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 76721][V][Parsing.cpp:122] _parseRequest(): method: GET url: /hotspot-detect.html search: 
+[ 76731][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 76736][V][Parsing.cpp:250] _parseRequest(): headerValue: captive.apple.com
+[ 76743][V][Parsing.cpp:249] _parseRequest(): headerName: Cache-Control
+[ 76750][V][Parsing.cpp:250] _parseRequest(): headerValue: no-cache
+[ 76756][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 76762][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 76768][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 76774][V][Parsing.cpp:250] _parseRequest(): headerValue: CaptiveNetworkSupport-514.120.2 wispr
+[ 76783][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 76789][V][Parsing.cpp:250] _parseRequest(): headerValue: en-GB,en-US;q=0.9,en;q=0.8
+[ 76798][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 76804][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 76811][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 76817][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 76823][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 76828][V][Parsing.cpp:260] _parseRequest(): Request: /hotspot-detect.html
+[ 76835][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 76841][E][WebServer.cpp:638] _handleRequest(): request handler not found
+[ 76848][W][WebServer.cpp:425] send(): content length is zero
+[ 76930][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 76938][V][Parsing.cpp:122] _parseRequest(): method: GET url: / search: 
+[ 76945][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 76950][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 76957][V][Parsing.cpp:249] _parseRequest(): headerName: Cache-Control
+[ 76964][V][Parsing.cpp:250] _parseRequest(): headerValue: no-cache
+[ 76970][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 76976][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 76982][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 76988][V][Parsing.cpp:250] _parseRequest(): headerValue: CaptiveNetworkSupport-514.120.2 wispr
+[ 76997][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 77004][V][Parsing.cpp:250] _parseRequest(): headerValue: en-GB,en-US;q=0.9,en;q=0.8
+[ 77012][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 77018][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 77025][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 77031][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 77037][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 77042][V][Parsing.cpp:260] _parseRequest(): Request: /
+[ 77047][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 77646][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 77780][V][Parsing.cpp:122] _parseRequest(): method: GET url: /hotspot-detect.html search: 
+[ 77788][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 77794][V][Parsing.cpp:250] _parseRequest(): headerValue: captive.apple.com
+[ 77801][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 77808][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 77823][V][Parsing.cpp:249] _parseRequest(): headerName: Upgrade-Insecure-Requests
+[ 77830][V][Parsing.cpp:250] _parseRequest(): headerValue: 1
+[ 77836][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 77842][V][Parsing.cpp:250] _parseRequest(): headerValue: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+[ 77853][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 77860][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 77866][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 77872][V][Parsing.cpp:250] _parseRequest(): headerValue: u=0, i
+[ 77878][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 77885][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 77892][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 77898][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 77904][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 77909][V][Parsing.cpp:260] _parseRequest(): Request: /hotspot-detect.html
+[ 77916][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 77922][E][WebServer.cpp:638] _handleRequest(): request handler not found
+[ 77929][W][WebServer.cpp:425] send(): content length is zero
+[ 78025][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 78034][V][Parsing.cpp:122] _parseRequest(): method: GET url: / search: 
+[ 78041][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 78046][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 78053][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 78059][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 78074][V][Parsing.cpp:249] _parseRequest(): headerName: Upgrade-Insecure-Requests
+[ 78082][V][Parsing.cpp:250] _parseRequest(): headerValue: 1
+[ 78088][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 78094][V][Parsing.cpp:250] _parseRequest(): headerValue: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+[ 78105][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 78111][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 78118][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 78124][V][Parsing.cpp:250] _parseRequest(): headerValue: u=0, i
+[ 78131][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 78137][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 78144][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 78150][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 78157][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 78162][V][Parsing.cpp:260] _parseRequest(): Request: /
+[ 78167][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 78321][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 78330][V][Parsing.cpp:122] _parseRequest(): method: GET url: /hotspot-detect.html search: 
+[ 78338][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 78344][V][Parsing.cpp:250] _parseRequest(): headerValue: captive.apple.com
+[ 78351][V][Parsing.cpp:249] _parseRequest(): headerName: Cache-Control
+[ 78357][V][Parsing.cpp:250] _parseRequest(): headerValue: no-cache
+[ 78364][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 78369][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 78375][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 78381][V][Parsing.cpp:250] _parseRequest(): headerValue: CaptiveNetworkSupport-514.120.2 wispr
+[ 78391][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 78397][V][Parsing.cpp:250] _parseRequest(): headerValue: en-GB,en-US;q=0.9,en;q=0.8
+[ 78405][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 78412][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 78418][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 78425][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 78431][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 78436][V][Parsing.cpp:260] _parseRequest(): Request: /hotspot-detect.html
+[ 78443][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 78448][E][WebServer.cpp:638] _handleRequest(): request handler not found
+[ 78455][W][WebServer.cpp:425] send(): content length is zero
+[ 78464][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 78472][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[ 78480][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 78486][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 78492][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 78498][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 78506][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 78512][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 78527][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 78533][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 78539][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 78546][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 78553][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 78559][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 78565][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 78571][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 78578][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 78584][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 78591][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 78596][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[ 78602][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 78611][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 78619][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[ 78628][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 78633][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 78640][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 78646][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 78653][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 78660][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 78675][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 78680][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 78686][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 78693][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 78700][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 78706][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 78712][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 78718][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 78725][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 78731][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 78738][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 78743][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[ 78749][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 78761][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 78770][V][Parsing.cpp:122] _parseRequest(): method: GET url: / search: 
+[ 78777][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 78783][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 78789][V][Parsing.cpp:249] _parseRequest(): headerName: Cache-Control
+[ 78796][V][Parsing.cpp:250] _parseRequest(): headerValue: no-cache
+[ 78802][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 78808][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 78814][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 78820][V][Parsing.cpp:250] _parseRequest(): headerValue: CaptiveNetworkSupport-514.120.2 wispr
+[ 78829][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 78836][V][Parsing.cpp:250] _parseRequest(): headerValue: en-GB,en-US;q=0.9,en;q=0.8
+[ 78844][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 78850][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 78857][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 78863][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 78869][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 78874][V][Parsing.cpp:260] _parseRequest(): Request: /
+[ 78880][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[TIME] 1970-01-01 00:06:32
+[ 80316][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 80324][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[ 80332][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 80338][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 80344][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 80350][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 80358][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 80364][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 80379][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 80385][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 80391][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 80398][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 80404][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 80410][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 80416][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 80423][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 80430][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 80436][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 80442][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 80447][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[ 80453][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 80463][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 80472][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[ 80479][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 80485][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 80492][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 80498][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 80505][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 80512][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 80526][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 80532][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 80538][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 80545][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 80551][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 80557][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 80564][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 80570][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 80577][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 80583][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 80589][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 80594][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[ 80601][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 82353][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 82362][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[ 82370][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 82375][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 82382][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 82388][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 82395][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 82402][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 82416][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 82422][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 82428][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 82435][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 82442][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 82448][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 82454][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 82461][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 82467][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 82473][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 82480][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 82485][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[ 82491][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 82501][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 82509][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[ 82517][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 82523][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 82530][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 82536][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 82543][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 82550][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 82564][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 82570][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 82576][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 82583][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 82589][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 82595][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 82601][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 82608][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 82615][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 82621][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 82627][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 82632][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[ 82639][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 84353][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 84362][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[ 84369][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 84375][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 84382][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 84388][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 84395][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 84401][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 84416][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 84422][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 84428][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 84435][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 84441][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 84447][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 84454][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 84460][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 84467][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 84473][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 84480][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 84485][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[ 84491][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 84501][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 84509][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[ 84517][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 84523][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 84529][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 84535][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 84543][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 84549][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 84564][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 84570][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 84576][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 84583][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 84589][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 84595][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 84601][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 84608][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 84615][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 84621][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 84627][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 84632][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[ 84638][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 86311][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 86319][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[ 86327][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 86333][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 86340][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 86346][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 86353][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 86359][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 86374][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 86380][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 86386][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 86393][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 86399][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 86405][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 86411][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 86418][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 86425][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 86431][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 86437][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 86442][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[ 86448][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 86458][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 86466][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[ 86474][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 86481][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 86487][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 86493][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 86501][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 86507][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 86522][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 86528][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 86534][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 86540][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 86547][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 86553][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 86559][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 86566][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 86573][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 86579][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 86585][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 86590][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[ 86596][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 88392][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 88400][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[ 88408][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 88414][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 88420][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 88426][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 88434][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 88440][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 88455][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 88461][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 88467][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 88474][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 88480][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 88487][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 88493][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 88499][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 88506][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 88512][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 88518][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 88524][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[ 88530][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 88539][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 88548][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[ 88555][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 88561][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 88567][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 88574][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 88581][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 88587][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 88602][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 88608][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 88614][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 88621][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 88627][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 88633][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 88640][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 88646][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 88653][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 88659][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 88665][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 88670][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[ 88676][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[TIME] 1970-01-01 00:06:42
+[ 90308][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 90316][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[ 90324][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 90329][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 90336][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 90342][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 90350][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 90356][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 90371][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 90377][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 90383][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 90389][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 90396][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 90402][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 90408][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 90415][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 90422][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 90428][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 90434][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 90439][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[ 90445][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 90455][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 90463][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[ 90471][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 90477][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 90485][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 90491][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 90498][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 90504][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 90519][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 90525][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 90531][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 90538][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 90544][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 90550][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 90557][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 90563][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 90570][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 90576][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 90582][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 90587][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[ 90593][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 92339][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 92348][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[ 92356][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 92362][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 92368][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 92374][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 92382][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 92388][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 92403][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 92409][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 92415][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 92421][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 92428][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 92434][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 92440][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 92447][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 92453][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 92460][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 92466][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 92471][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[ 92477][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 92487][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 92495][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[ 92503][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 92509][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 92516][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 92522][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 92530][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 92536][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 92551][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 92557][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 92563][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 92569][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 92576][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 92582][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 92588][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 92595][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 92601][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 92607][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 92614][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 92619][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[ 92625][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 94339][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 94347][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[ 94355][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 94361][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 94367][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 94373][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 94381][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 94387][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 94402][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 94408][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 94414][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 94421][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 94427][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 94433][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 94440][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 94446][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 94453][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 94459][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 94466][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 94471][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[ 94477][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 94486][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 94495][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[ 94503][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 94508][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 94515][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 94521][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 94529][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 94535][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 94550][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 94556][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 94562][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 94568][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 94575][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 94581][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 94587][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 94594][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 94600][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 94607][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 94613][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 94618][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[ 94624][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 96336][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 96346][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[ 96353][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 96359][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 96365][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 96371][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 96379][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 96385][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 96400][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 96406][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 96412][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 96418][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 96425][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 96431][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 96437][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 96444][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 96451][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 96457][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 96463][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 96468][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[ 96474][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 96484][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 96493][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[ 96500][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 96506][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 96513][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 96519][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 96526][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 96533][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 96548][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 96554][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 96560][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 96566][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 96573][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 96579][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 96585][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 96592][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 96598][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 96605][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 96611][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 96616][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[ 96622][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 98375][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 98384][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[ 98392][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 98397][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 98404][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 98410][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 98418][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 98424][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 98439][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 98445][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 98450][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 98457][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 98464][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 98470][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 98476][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 98483][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 98489][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 98496][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 98502][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 98507][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[ 98513][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[ 98523][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[ 98531][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[ 98539][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[ 98544][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[ 98552][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[ 98558][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[ 98566][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[ 98572][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[ 98587][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[ 98593][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[ 98599][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[ 98606][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[ 98612][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[ 98618][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[ 98624][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[ 98631][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[ 98638][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[ 98644][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[ 98650][V][Parsing.cpp:277] _parseArguments(): args: 
+[ 98655][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[ 98661][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[TIME] 1970-01-01 00:06:52
+[100333][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[100341][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[100350][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[100356][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[100362][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[100368][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[100376][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[100382][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[100397][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[100403][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[100409][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[100415][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[100422][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[100428][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[100434][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[100441][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[100448][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[100454][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[100460][V][Parsing.cpp:277] _parseArguments(): args: 
+[100465][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[100471][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[100481][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[100489][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[100497][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[100503][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[100510][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[100516][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[100523][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[100529][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[100544][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[100550][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[100556][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[100563][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[100569][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[100575][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[100581][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[100588][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[100595][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[100601][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[100607][V][Parsing.cpp:277] _parseArguments(): args: 
+[100612][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[100618][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[102368][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[102377][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[102384][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[102390][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[102397][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[102403][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[102410][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[102416][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[102431][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[102437][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[102443][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[102450][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[102457][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[102463][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[102469][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[102475][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[102482][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[102488][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[102495][V][Parsing.cpp:277] _parseArguments(): args: 
+[102500][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[102506][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[102515][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[102524][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[102532][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[102537][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[102544][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[102551][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[102559][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[102565][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[102580][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[102586][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[102592][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[102598][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[102605][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[102611][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[102617][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[102624][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[102631][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[102637][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[102643][V][Parsing.cpp:277] _parseArguments(): args: 
+[102648][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[102654][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[104328][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[104337][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[104344][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[104350][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[104357][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[104363][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[104370][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[104377][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[104392][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[104397][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[104403][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[104410][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[104417][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[104423][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[104429][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[104435][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[104442][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[104449][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[104456][V][Parsing.cpp:277] _parseArguments(): args: 
+[104461][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[104467][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[104477][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[104485][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[104493][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[104499][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[104506][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[104512][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[104520][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[104526][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[104541][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[104547][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[104553][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[104559][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[104566][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[104572][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[104578][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[104585][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[104591][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[104598][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[104604][V][Parsing.cpp:277] _parseArguments(): args: 
+[104609][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[104615][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[106361][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[106370][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[106378][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[106383][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[106390][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[106396][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[106404][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[106410][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[106425][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[106431][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[106436][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[106443][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[106450][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[106456][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[106462][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[106469][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[106475][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[106482][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[106488][V][Parsing.cpp:277] _parseArguments(): args: 
+[106493][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[106499][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[106509][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[106517][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[106525][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[106531][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[106537][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[106543][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[106551][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[106557][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[106573][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[106579][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[106584][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[106591][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[106598][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[106604][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[106610][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[106617][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[106623][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[106629][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[106636][V][Parsing.cpp:277] _parseArguments(): args: 
+[106641][V][Parsing.cpp:260] _parseRequest(): Request: /api/devices
+[106647][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[108364][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[108373][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/status search: 
+[108380][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[108386][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[108393][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[108398][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/
+[108406][V][Parsing.cpp:249] _parseRequest(): headerName: User-Agent
+[108412][V][Parsing.cpp:250] _parseRequest(): headerValue: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+[108427][V][Parsing.cpp:249] _parseRequest(): headerName: Accept
+[108433][V][Parsing.cpp:250] _parseRequest(): headerValue: */*
+[108439][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Language
+[108446][V][Parsing.cpp:250] _parseRequest(): headerValue: uk-UA,uk;q=0.9
+[108452][V][Parsing.cpp:249] _parseRequest(): headerName: Priority
+[108459][V][Parsing.cpp:250] _parseRequest(): headerValue: u=3, i
+[108465][V][Parsing.cpp:249] _parseRequest(): headerName: Accept-Encoding
+[108471][V][Parsing.cpp:250] _parseRequest(): headerValue: gzip, deflate
+[108478][V][Parsing.cpp:249] _parseRequest(): headerName: Connection
+[108484][V][Parsing.cpp:250] _parseRequest(): headerValue: keep-alive
+[108490][V][Parsing.cpp:277] _parseArguments(): args: 
+[108496][V][Parsing.cpp:260] _parseRequest(): Request: /api/status
+[108502][V][Parsing.cpp:261] _parseRequest():  Arguments: 
+[108511][V][WebServer.cpp:285] handleClient(): New client: client.localIP()=192.168.4.1
+[108520][V][Parsing.cpp:122] _parseRequest(): method: GET url: /api/devices search: 
+[108527][V][Parsing.cpp:249] _parseRequest(): headerName: Host
+[108533][V][Parsing.cpp:250] _parseRequest(): headerValue: 192.168.4.1
+[108540][V][Parsing.cpp:249] _parseRequest(): headerName: Referer
+[108546][V][Parsing.cpp:250] _parseRequest(): headerValue: http://192.168.4.1/

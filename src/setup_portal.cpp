@@ -92,10 +92,11 @@ button.sec{background:#3a3a3c}
 </div>
 
 <div class="card">
-  <p class="muted">Bring your iPhone close to this device, then tap <b>Connect</b> on the
+  <p class="muted">Bring your iPhone right next to this device, then tap <b>Connect</b> on the
   strongest Apple entry below and accept the pairing prompt on your phone. After that it
   reconnects automatically.</p>
-  <table><thead><tr><th>Device</th><th>RSSI</th><th></th></tr></thead>
+  <label class="muted"><input type="checkbox" id="appleOnly" checked onchange="refresh()"> Show Apple devices only</label>
+  <table><thead><tr><th>Device</th><th>Signal</th><th></th></tr></thead>
   <tbody id="devs"><tr><td colspan="3" class="muted">Scanning…</td></tr></tbody></table>
 </div>
 
@@ -114,14 +115,18 @@ function refresh(){
     document.getElementById('track').textContent = s.connected ? (s.title+' — '+s.artist+'  ['+s.state+']') : '';
   });
   fetch('/api/devices').then(r=>r.json()).then(list=>{
-    list.sort((a,b)=>b.rssi-a.rssi);
+    if(document.getElementById('appleOnly').checked) list=list.filter(d=>d.apple);
+    // Apple first, then strongest signal first.
+    list.sort((a,b)=>(b.apple-a.apple)||(b.rssi-a.rssi));
     var t=document.getElementById('devs');
-    if(!list.length){t.innerHTML='<tr><td colspan=3 class=muted>Scanning…</td></tr>';return}
+    if(!list.length){t.innerHTML='<tr><td colspan=3 class=muted>Scanning… bring your phone close</td></tr>';return}
     t.innerHTML='';
     list.forEach(d=>{
-      var name=d.name||'(unknown)';
+      var name=d.name||'(unknown device)';
       var b=(d.apple?'<span class="badge apple">Apple</span>':'')+(d.bonded?'<span class="badge bond">Bonded</span>':'');
-      t.innerHTML+='<tr><td>'+name+'<br><span class=muted>'+d.address+'</span>'+b+'</td><td>'+d.rssi+'</td><td><button onclick="conn(\''+d.address+'\')">Connect</button></td></tr>';
+      // RSSI: ~-50 near, ~-90 far. Map to bars.
+      var bars=d.rssi>-55?'▮▮▮▮':d.rssi>-65?'▮▮▮▯':d.rssi>-75?'▮▮▯▯':d.rssi>-85?'▮▯▯▯':'▯▯▯▯';
+      t.innerHTML+='<tr><td>'+name+'<br><span class=muted>'+d.address+'</span>'+b+'</td><td>'+bars+'<br><span class=muted>'+d.rssi+' dBm</span></td><td><button onclick="conn(\''+d.address+'\')">Connect</button></td></tr>';
     });
   });
 }

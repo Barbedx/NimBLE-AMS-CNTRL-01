@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include <algorithm>
 #include <vector>
+#include <set>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
@@ -39,6 +40,7 @@ namespace Bluetooth
 
         SemaphoreHandle_t StateMutex = nullptr;
         std::vector<CandidateEntry> Candidates; // guarded by StateMutex
+        std::set<std::string> LoggedAddrs;      // diagnostics: log each addr once
 
         // Pending connect request, set by the scan callback (bonded auto-connect)
         // or by the portal (user pick). Guarded by StateMutex.
@@ -68,10 +70,10 @@ namespace Bluetooth
         public:
             void onResult(const NimBLEAdvertisedDevice *dev) override
             {
-                if (!dev->isConnectable())
-                    return;
-
                 const NimBLEAddress addr = dev->getAddress();
+                const bool connectable = dev->isConnectable();
+                const int  rssi = dev->getRSSI();
+                const std::string name = dev->getName();
 
                 // Apple company id (first two bytes of manufacturer data).
                 bool isApple = false;
@@ -84,6 +86,21 @@ namespace Bluetooth
 
                 const bool bonded = NimBLEDevice::isBonded(addr);
 
+                // Diagnostics: log every Apple advertiser once so we can see what
+                // the scan actually finds (iOS often advertises non-connectable
+                // Continuity/Handoff packets — those can't be used for AMS).
+                if (isApple)
+                {
+                    bool firstSeen;
+                    { Lock l; firstSeen = LoggedAddrs.insert(addr.toString()).second; }
+                    if (firstSeen)
+                        Serial.printf("[SCAN] Apple %s rssi=%d connectable=%d bonded=%d name='%s'\n",
+                                      addr.toString().c_str(), rssi, connectable, bonded, name.c_str());
+                }
+
+                if (!connectable)
+                    return;
+
                 // Record / refresh the candidate for the portal.
                 {
                     Lock l;
@@ -92,14 +109,14 @@ namespace Bluetooth
                     if (it == Candidates.end())
                     {
                         if (Candidates.size() < 40)
-                            Candidates.push_back({addr, dev->getName(), dev->getRSSI(), isApple, bonded});
+                            Candidates.push_back({addr, name, rssi, isApple, bonded});
                     }
                     else
                     {
-                        it->rssi = dev->getRSSI();
+                        it->rssi = rssi;
                         it->bonded = bonded;
-                        if (!dev->getName().empty())
-                            it->name = dev->getName();
+                        if (!name.empty())
+                            it->name = name;
                     }
                 }
 
