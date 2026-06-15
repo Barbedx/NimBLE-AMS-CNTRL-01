@@ -2,6 +2,7 @@
 #include <esp_sleep.h>
 #include "apple_media_service.h"
 #include "Bluetooth.h"
+#include "setup_portal.h"
 #include "esp_system.h"
 
 const unsigned long sleepTimeout = 1000 * 60 * 3; // 3 min
@@ -31,6 +32,10 @@ void setup()
   AppleMediaService::RegisterForNotifications(
       onDataUpdateCallback,
       AppleMediaService::NotificationLevel::All);
+
+  // WiFi access point + web page for picking/pairing the phone and for status
+  // and remote control. SSID "CTRL 01 Setup", password "ctrl0101" (>=8 chars).
+  SetupPortal::Begin("CTRL 01 Setup", "ctrl0101");
 
   esp_chip_info_t chip_info;
   esp_chip_info(&chip_info);
@@ -144,6 +149,7 @@ void loop()
 {
 
   Bluetooth::Service();
+  SetupPortal::Handle();
 
   static uint32_t last = 0;
   if (millis() - last > 10000)
