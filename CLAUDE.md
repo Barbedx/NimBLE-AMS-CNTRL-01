@@ -4,55 +4,69 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-ESP32 firmware (Arduino framework via PlatformIO) acting as a **BLE central/client** for iOS. It scans, connects to an iPhone, and consumes Apple Media Service (AMS) for now-playing metadata + playback control, and Current Time Service (CTS) to set the ESP32 RTC. It does **not** run a GATT server — pairing disambiguation is solved with a WiFi setup page + bonding, not by advertising. Built on `h2zero/NimBLE-Arduino` (the old Bluedroid `BLE` lib is explicitly ignored).
+ESP32 firmware (Arduino framework via PlatformIO) that connects to an iPhone over BLE and consumes Apple services **as a GATT client**:
+- **AMS** (Apple Media Service) — now-playing metadata + playback control;
+- **ANCS** (Apple Notification Center Service) — incoming notifications (messages/calls/app alerts), kept as a small live history;
+- **CTS** (Current Time Service) — sets the ESP32 RTC.
 
-It also runs a **WiFi access point + web portal** (always on) for first-time device selection, live status, and remote control.
+Built on `h2zero/NimBLE-Arduino`. It also runs Wi-Fi (station with AP fallback) + a **PsychicHttp** web dashboard for live status and control.
+
+Role model (important): the ESP32 advertises as a **peripheral** named `CTRL 01`; the **iPhone connects to it** (user taps it in iOS Settings → Bluetooth). On connect the ESP32 grabs a GATT *client* over that phone-initiated connection (`NimBLEServer::getClient`) and reads AMS/ANCS/CTS, which the iPhone hosts. Bonding makes every later reconnect automatic and silent.
+
+This is a sandbox/proof-of-concept intended to be ported into a larger car head-unit project; modules are kept self-contained for that reason.
 
 ## Commands
 
-PlatformIO project, single env `esp32dev` (board `esp32dev`, 115200 monitor baud).
+PlatformIO. Shared options live in the `[env]` base; two boards inherit it. **`esp32dev-mini` (ESP32‑C3 SuperMini) is the primary board.**
 
 ```bash
-pio run                 # build
-pio run -t upload       # flash over serial
-pio device monitor      # serial console @115200 (also issues runtime commands, see below)
-pio run -t clean
+pio run -e esp32dev-mini                                 # build
+pio run -e esp32dev-mini -t upload --upload-port COMx    # flash (C3 auto-resets over native USB)
+pio device monitor -p COMx -b 115200 --filter direct     # serial console
 ```
 
-There are no tests. The serial monitor is the primary debugging/control interface.
+No tests. The serial monitor + the web dashboard are the observation/debug interfaces.
 
-### Setup / control interfaces
-- **WiFi portal:** on boot the device starts an AP `CTRL 01 Setup` (password `ctrl0101`, `192.168.4.1`). The page lists nearby BLE devices by RSSI, shows now-playing status, and has play/pause/next/prev buttons. See [src/setup_portal.cpp](src/setup_portal.cpp).
-- **Runtime serial commands:** `help`, `clearbonds`, and media commands `play pause toggle next prev vol+ vol- ff rew rep shuf like dislike star`. Media commands only work while connected. See `pollSerial()` in [src/main.cpp](src/main.cpp).
+- **C3 SuperMini** (`esp32dev-mini`): native USB-Serial/JTAG, upload auto-resets — no buttons.
+- **Classic `esp32dev`**: no working auto-reset — enter download mode manually (hold BOOT, tap EN, release BOOT) before uploading.
+
+### Interfaces
+- **Pairing:** iPhone → Settings → Bluetooth → tap `CTRL 01` → Pair. Then reconnection is automatic.
+- **Web dashboard:** in STA mode reachable at `http://ctrl01.local` (mDNS) or the DHCP IP; in AP fallback at `http://192.168.4.1` (SSID `CTRL 01 Setup`, pw `ctrl0101`). Shows clock, now-playing (with a live-advancing progress bar), notification history, media controls, and a Wi-Fi config form (network dropdown from a live scan + manual entry).
+- **Serial commands:** `help`, `clearbonds`, media commands `play pause toggle next prev vol+ vol- ...`. See `pollSerial()` in [src/main.cpp](src/main.cpp).
 
 ## Architecture
 
-Four modules + entry point, each a `namespace` (not classes) with a public header in `include/` and impl in `src/`:
+Each module is a `namespace` (not classes) with a header in `include/` and impl in `src/`. They are deliberately decoupled for porting:
 
-- **[src/main.cpp](src/main.cpp)** — `setup()` calls `Bluetooth::Begin()`, registers the AMS notification callback, and `SetupPortal::Begin()`; `loop()` drives `Bluetooth::Service()` + `SetupPortal::Handle()`, prints RTC time every 10s, polls serial.
-- **[src/bluetooth.cpp](src/bluetooth.cpp)** (`Bluetooth::`) — owns the single `NimBLEClient`, scan lifecycle, bonding, and the connection state machine. On connect it secures/bonds, then calls `AppleMediaService::StartMediaService()` and `CurrentTimeService::StartTimeService()`.
-- **[src/setup_portal.cpp](src/setup_portal.cpp)** (`SetupPortal::`) — WiFi AP + `WebServer` + captive `DNSServer`. Reads `Bluetooth::GetCandidates()`/status and calls `Bluetooth::RequestConnect()` / `AppleMediaService::SendRemoteCommand()`. No extra PlatformIO deps (`WiFi`/`WebServer`/`DNSServer` are framework built-ins).
-- **[src/apple_media_service.cpp](src/apple_media_service.cpp)** (`AppleMediaService::`) — subscribes to the AMS Entity Update characteristic, decodes Player/Queue/Track attributes into `MediaInformation`; sends remote commands.
-- **[src/current_time_service.cpp](src/current_time_service.cpp)** (`CurrentTimeService::`) — reads CTS and converts to `time_t` for `settimeofday()`.
+- **[src/main.cpp](src/main.cpp)** — wiring only: `Bluetooth::Begin` → `WiFiManager::Begin` → `WebPortal::Begin`; `loop()` drives `Bluetooth::Service()` + `WiFiManager::Handle()` + serial.
+- **[src/bluetooth.cpp](src/bluetooth.cpp)** (`Bluetooth::`) — the BLE peripheral link: advertising, bonding, connection lifecycle. On connect it secures the link then brings up AMS + ANCS + CTS; drives `AppleNotificationService::Process()` while connected.
+- **[src/apple_media_service.cpp](src/apple_media_service.cpp)** (`AppleMediaService::`) — AMS Entity Update decode → `MediaInformation`; single-byte Remote Commands. `CurrentElapsedTime()` extrapolates the playback position between AMS updates (AMS only reports it on state changes).
+- **[src/apple_notification_service.cpp](src/apple_notification_service.cpp)** (`AppleNotificationService::`) — ANCS. Keeps a mutex-guarded history (newest first, capped) keyed by UID; prunes on Removed events. `GetRecent()` for the UI.
+- **[src/current_time_service.cpp](src/current_time_service.cpp)** (`CurrentTimeService::`) — CTS → `settimeofday()`.
+- **[src/wifi_manager.cpp](src/wifi_manager.cpp)** (`WiFiManager::`) — STA with NVS-persisted credentials → AP fallback + captive DNS; mDNS; async network scan; optional static IP. Owns all networking.
+- **[src/web_portal.cpp](src/web_portal.cpp)** (`WebPortal::`) — PsychicHttp dashboard + `/api/*`. Pure presentation: reads the service modules and WiFiManager. Knows nothing about how the network is set up. Runs in its own task (no loop `Handle()`).
 
-### Connection / pairing model (the key flow)
-The hard problem: iOS only exposes AMS to a **bonded** peer, and from advertising alone there's no stable way to tell which Apple device is "my iPhone" (rotating RPA, no name). Solution = bonding + human-in-the-loop selection:
+### Threading invariant (do not break)
+**BLE notification callbacks never block and never do a GATT read/write-with-response.** Such a call from the NimBLE host task deadlocks the host (incoming ACL buffers exhaust → `Failed to allocate buffer, retrying`). Pattern: the callback parses + stores + enqueues; the *loop task* performs outbound writes — e.g. ANCS queues a UID in the callback and `Process()` (loop) fetches its attributes.
 
-1. `Begin()` sets `setSecurityAuth(bonding=true, mitm=false, sc=true)` + IO cap `NO_INPUT_OUTPUT` (iOS "Just Works", keys persisted in NVS), and starts a forever active scan. **Bonding being ON is what makes reconnection silent** — the previous version used `bonding=false`, which re-prompted every connect.
-2. `AmsScanCallbacks::onResult` records every connectable advertiser into a candidate list (address/RSSI/name/Apple-flag/bonded-flag) for the portal. If a candidate `NimBLEDevice::isBonded()`, it auto-requests reconnect.
-3. **First pairing:** the user opens the WiFi page, picks the strongest Apple entry → `RequestConnect()`. The iOS pairing prompt is the disambiguator — accepting it designates "my phone" and stores the bond + the phone's identity (IRK).
-4. **Reconnect:** once bonded, `Service()` reconnects automatically — via the scan auto-connect, plus a belt-and-suspenders direct `connect(getBondedAddress(0))` every 8s in case the rotating address isn't resolved during scan.
-5. `connectTo()` does connect → `secureConnection()` → AMS → CTS. On `secureConnection()` failure of a bonded peer it `deleteBond()`s (stale-bond recovery) so the next attempt re-pairs cleanly.
+### Connection / pairing flow
+iOS only exposes AMS/ANCS to a **bonded** peer, and you can't tell which scanned RPA is "my iPhone". The peripheral model sidesteps both: the human picks the *ESP32* by name in Settings.
 
-Shared state (candidate list + pending-connect request) is touched by both the NimBLE host task (scan callbacks) and the loop task (portal handlers), so it's guarded by `StateMutex` via the `Lock` RAII helper.
+1. `Begin()`: `setSecurityAuth(bonding=true, mitm=false, sc=true)`, IO cap `NO_INPUT_OUTPUT` (Just Works), `setMTU(247)`; create `NimBLEServer`, `advertiseOnDisconnect(true)`.
+2. **Advertising**: device name in the *primary* packet (scan-response-only name is hidden by iOS Settings) + AMS UUID as a **solicited** service (AD type `0x15`; `addData()` does not prepend the AD length byte, so it is built as `[0x11][0x15][16 UUID LE]`). Once bonded, iOS exposes both AMS and ANCS even though only AMS is solicited.
+3. `onConnect` → `Client = pServer->getClient(connInfo)`.
+4. `Service()` (loop): `secureConnection()` first, then start AMS → ANCS → CTS; retried ~every 800ms until it succeeds (issue ordering matters — NimBLE issue #1033).
 
 ### BLE GATT identifiers
-AMS service `89D3502B-0F36-433A-8EF4-C502AD55F8DC` with Remote Command / Entity Update / Entity Attribute characteristics (UUIDs `#define`d at the top of [src/apple_media_service.cpp](src/apple_media_service.cpp)). Entity IDs: Player=0, Queue=1, Track=2. Remote commands are single bytes (`RemoteCommandID` in [include/apple_media_service.h](include/apple_media_service.h)); Entity Update notifications parse as `[entityID][attrID][flags][UTF-8 value]`.
+- **AMS** `89D3502B-0F36-433A-8EF4-C502AD55F8DC` (Remote Command / Entity Update / Entity Attribute). Entity IDs Player=0/Queue=1/Track=2. Entity Update notifications: `[entityID][attrID][flags][UTF-8 value]`.
+- **ANCS** `7905F431-B5CE-4E99-A40F-4B1E122D00D0` (Notification Source / Control Point / Data Source). Notification Source = `[EventID][Flags][CategoryID][Count][UID×4]`; Data Source response = `[CmdID][UID×4]` then `[AttrID][len×2 LE][value]` tuples.
 
 ## Notes for editing
 
-- `build_flags` in [platformio.ini](platformio.ini) crank NimBLE + ESP debug logging to verbose; expect heavy serial output. Adjust there, not in source.
+- `build_flags` are in the `[env]` base; per-board flags append via `${env.build_flags}`. `CORE_DEBUG_LEVEL=3` keeps serial readable (5 buries it in WebServer/HCI dumps).
+- Dependencies: `NimBLE-Arduino`, `hoeken/PsychicHttp` (pulls ArduinoJson + UrlEncode). `lib_ignore = BLE` keeps the old Bluedroid lib out.
 - Code mixes English and Ukrainian comments — both are normal here.
-- `.vscode/c_cpp_properties.json` is auto-generated by PlatformIO; do not hand-edit.
-- WiFi + BLE run concurrently (coexistence). Flash usage is ~86% of the default `esp32dev` partition — large additions may need a custom partition table.
-- The HTML/JS portal page is an inline `PROGMEM` raw-string literal in [src/setup_portal.cpp](src/setup_portal.cpp).
+- WiFi + BLE coexist on a single-core C3; keep the loop responsive. A Wi-Fi scan briefly disrupts the AP (single radio).
+- The HTML/JS dashboard is an inline `PROGMEM` raw-string in [src/web_portal.cpp](src/web_portal.cpp); `/api/status` is hand-built JSON (escaped via `jsonEscape`).
+- We host **no** GATT services (we're a client of the phone). A scanner that connects and "performs GATT discovery" forever is expected. Add a server only if another device must read this data (the head-unit project).

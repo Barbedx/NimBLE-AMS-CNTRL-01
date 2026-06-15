@@ -38,6 +38,18 @@ namespace AppleMediaService
     NotificationLevel gNotificationLevel;
     MediaInformation gMediaInformation;
     NimBLERemoteCharacteristic *remote_command_characteristic = nullptr;
+    uint32_t gPlaybackInfoMs = 0; // millis() when elapsed/rate were last received
+  }
+
+  float CurrentElapsedTime()
+  {
+    const auto &m = gMediaInformation;
+    if (m.mPlaybackState == MediaInformation::PlaybackState::Playing && gPlaybackInfoMs)
+    {
+      float rate = m.mPlaybackRate > 0 ? m.mPlaybackRate : 1.0f;
+      return m.mElapsedTime + (millis() - gPlaybackInfoMs) / 1000.0f * rate;
+    }
+    return m.mElapsedTime;
   }
 
   void RegisterForNotifications(const NotificationCb &callback, NotificationLevel level)
@@ -68,7 +80,6 @@ namespace AppleMediaService
       return false;
     }
 
-    // TODO: Add support for actually sending media control commands
     remote_command_characteristic = music_service->getCharacteristic(APPLE_REMOTE_COMMAND_UUID);
     if (!remote_command_characteristic)
     {
@@ -76,14 +87,8 @@ namespace AppleMediaService
       return false;
     }
 
-    // TODO: Add support for the entity attribute characteristic, which is only used for handling track attributes that are too long for
-    // entity update.
-    auto entity_attribute_characteristic = music_service->getCharacteristic(APPLE_REMOTE_COMMAND_UUID);
-    if (!entity_attribute_characteristic)
-    {
-      Serial.println("Apple entity attribute characteristic not found");
-      return false;
-    }
+    // NOTE: the Entity Attribute characteristic (APPLE_ENTITY_ATTRIBUTE_UUID) is
+    // only needed for track values too long for Entity Update — not implemented.
 
     auto entity_update = music_service->getCharacteristic(APPLE_ENTITY_UPDATE_UUID);
     if (!entity_update)
@@ -129,6 +134,7 @@ namespace AppleMediaService
                                        gMediaInformation.mElapsedTime = String(value.substr(second_comma + 1).c_str()).toFloat();
                                      }
                                    }
+                                   gPlaybackInfoMs = millis(); // base for live position extrapolation
                                    break;
                                  }
                                  case PlayerAttributeIDVolume: // A string that represents the floating point value of the volume, ranging from 0

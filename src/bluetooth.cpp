@@ -5,258 +5,53 @@
 
 #include <time.h>
 #include <sys/time.h>
-#include <algorithm>
+#include <string.h>
 #include <vector>
-#include <set>
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/semphr.h"
 
 #include "apple_media_service.h"
+#include "apple_notification_service.h"
 #include "current_time_service.h"
 
-#define APPLE_COMPANY_ID 0x004C
+// Apple Media Service (hosted by the iPhone; we are its client).
+#define APPLE_MEDIA_SERVICE_UUID "89D3502B-0F36-433A-8EF4-C502AD55F8DC"
 
 namespace Bluetooth
 {
     namespace
     {
-        // --- Connection state ---
-        bool Ended = true;
-        bool Connected = false;
+        NimBLEServer *Server = nullptr;
+        NimBLEClient *Client = nullptr; // GATT client bound to the phone-initiated connection
 
-        BLEClient *Client = nullptr; // NimBLE client (BLEClient macro)
+        volatile bool Connected = false;  // AMS is up
+        volatile bool NeedSetup = false;  // phone connected, services not started yet
+        volatile bool Secured   = false;  // link encrypted/bonded
         RTC_DATA_ATTR bool TimeSet = false;
 
-        // --- Discovery candidate list (shared with the setup portal) ---
-        struct CandidateEntry
+        std::string PeerAddr;
+        uint32_t    lastSetupAttempt = 0;
+
+        // Bring up AMS + CTS once the link is secured. Returns true on success.
+        bool startServices(NimBLEClient *c)
         {
-            NimBLEAddress addr;
-            std::string   name;
-            int           rssi;
-            bool          isApple;
-            bool          bonded;
-        };
-
-        SemaphoreHandle_t StateMutex = nullptr;
-        std::vector<CandidateEntry> Candidates; // guarded by StateMutex
-        std::set<std::string> LoggedAddrs;      // diagnostics: log each addr once
-
-        // Pending connect request, set by the scan callback (bonded auto-connect)
-        // or by the portal (user pick). Guarded by StateMutex.
-        bool          ConnectPending = false;
-        NimBLEAddress PendingAddr;
-
-        uint32_t lastReconnectAttempt = 0;
-
-        struct Lock
-        {
-            Lock() { if (StateMutex) xSemaphoreTake(StateMutex, portMAX_DELAY); }
-            ~Lock() { if (StateMutex) xSemaphoreGive(StateMutex); }
-        };
-
-        void startScan(); // fwd
-
-        void requestConnect(const NimBLEAddress &addr)
-        {
-            Lock l;
-            PendingAddr = addr;
-            ConnectPending = true;
-        }
-
-        // --- Scan callbacks ---
-        class AmsScanCallbacks : public NimBLEScanCallbacks
-        {
-        public:
-            void onResult(const NimBLEAdvertisedDevice *dev) override
+            if (!AppleMediaService::StartMediaService(c))
             {
-                const NimBLEAddress addr = dev->getAddress();
-                const bool connectable = dev->isConnectable();
-                const int  rssi = dev->getRSSI();
-                const std::string name = dev->getName();
-
-                // Apple company id (first two bytes of manufacturer data).
-                bool isApple = false;
-                const std::string mfg = dev->getManufacturerData();
-                if (mfg.size() >= 2)
-                {
-                    uint16_t company = (uint8_t)mfg[0] | ((uint8_t)mfg[1] << 8);
-                    isApple = (company == APPLE_COMPANY_ID);
-                }
-
-                const bool bonded = NimBLEDevice::isBonded(addr);
-
-                // Diagnostics: log every Apple advertiser once so we can see what
-                // the scan actually finds (iOS often advertises non-connectable
-                // Continuity/Handoff packets — those can't be used for AMS).
-                if (isApple)
-                {
-                    bool firstSeen;
-                    { Lock l; firstSeen = LoggedAddrs.insert(addr.toString()).second; }
-                    if (firstSeen)
-                        Serial.printf("[SCAN] Apple %s rssi=%d connectable=%d bonded=%d name='%s'\n",
-                                      addr.toString().c_str(), rssi, connectable, bonded, name.c_str());
-                }
-
-                if (!connectable)
-                    return;
-
-                // Record / refresh the candidate for the portal.
-                {
-                    Lock l;
-                    auto it = std::find_if(Candidates.begin(), Candidates.end(),
-                                           [&](const CandidateEntry &c) { return c.addr == addr; });
-                    if (it == Candidates.end())
-                    {
-                        if (Candidates.size() < 40)
-                            Candidates.push_back({addr, name, rssi, isApple, bonded});
-                    }
-                    else
-                    {
-                        it->rssi = rssi;
-                        it->bonded = bonded;
-                        if (!name.empty())
-                            it->name = name;
-                    }
-                }
-
-                // If this is a device we are already bonded to, reconnect to it
-                // automatically (this is the "remembers my iPhone" path).
-                if (bonded && !Connected)
-                {
-                    bool already;
-                    { Lock l; already = ConnectPending; }
-                    if (!already)
-                    {
-                        Serial.print("Bonded device in range, reconnecting: ");
-                        Serial.println(addr.toString().c_str());
-                        NimBLEDevice::getScan()->stop();
-                        requestConnect(addr);
-                    }
-                }
-            }
-
-            void onScanEnd(const NimBLEScanResults &results, int reason) override
-            {
-                // Keep scanning while we are disconnected and have no pending work.
-                if (!Ended && !Connected)
-                {
-                    bool pending;
-                    { Lock l; pending = ConnectPending; }
-                    if (!pending)
-                        startScan();
-                }
-            }
-        };
-
-        // --- Client callbacks ---
-        class AmsClientCallbacks : public NimBLEClientCallbacks
-        {
-        public:
-            void onDisconnect(NimBLEClient *pClient, int reason) override
-            {
-                Serial.printf("Client disconnected, reason=%d\n", reason);
-                Connected = false;
-            }
-
-            void onConnectFail(NimBLEClient *pClient, int reason) override
-            {
-                Serial.printf("Client connect failed, reason=%d\n", reason);
-            }
-
-            void onAuthenticationComplete(NimBLEConnInfo &connInfo) override
-            {
-                Serial.printf("Auth complete: bonded=%d encrypted=%d authenticated=%d\n",
-                              connInfo.isBonded(), connInfo.isEncrypted(), connInfo.isAuthenticated());
-            }
-        };
-
-        AmsScanCallbacks   scanCb;
-        AmsClientCallbacks clientCb;
-
-        void startScan()
-        {
-            NimBLEScan *scan = NimBLEDevice::getScan();
-            if (!scan)
-                return;
-            if (scan->isScanning())
-                return;
-            scan->start(0, /*isContinue=*/false, /*restart=*/false); // forever
-        }
-
-        void teardownClient()
-        {
-            if (Client)
-            {
-                if (Client->isConnected())
-                    Client->disconnect();
-                NimBLEDevice::deleteClient(Client);
-                Client = nullptr;
-            }
-            Connected = false;
-        }
-
-        // Connect, secure (pair/bond), and start AMS + CTS on the given address.
-        bool connectTo(const NimBLEAddress &addr)
-        {
-            NimBLEScan *scan = NimBLEDevice::getScan();
-            if (scan && scan->isScanning())
-                scan->stop();
-
-            teardownClient();
-
-            Serial.print("Connecting to: ");
-            Serial.println(addr.toString().c_str());
-
-            Client = NimBLEDevice::createClient();
-            if (!Client)
-            {
-                Serial.println("Failed to create client");
-                return false;
-            }
-            Client->setClientCallbacks(&clientCb, false);
-
-            if (!Client->connect(addr))
-            {
-                Serial.println("connect() failed");
-                teardownClient();
-                return false;
-            }
-
-            // Encrypt + pair/bond. With bonding enabled iOS prompts only on the
-            // first pairing; afterwards the stored keys make this silent.
-            if (!Client->secureConnection())
-            {
-                Serial.println("secureConnection() failed");
-                // A stale bond (we kept keys, the phone forgot them) wedges
-                // reconnection. Drop our copy so the next attempt pairs fresh.
-                if (NimBLEDevice::isBonded(addr))
-                {
-                    Serial.println("Deleting stale bond to allow re-pairing");
-                    NimBLEDevice::deleteBond(addr);
-                }
-                teardownClient();
-                return false;
-            }
-
-            if (!AppleMediaService::StartMediaService(Client))
-            {
-                Serial.println("StartMediaService failed (not an AMS device?)");
-                teardownClient();
+                Serial.println("StartMediaService not ready yet (will retry)");
                 return false;
             }
             Serial.println("AMS started");
 
+            // ANCS (notifications) is optional — don't fail the connection if the
+            // phone doesn't expose it; just log and continue.
+            AppleNotificationService::StartNotificationService(c);
+
             CurrentTimeService::CurrentTime ct;
-            if (CurrentTimeService::StartTimeService(Client, &ct))
+            if (CurrentTimeService::StartTimeService(c, &ct))
             {
-                timeval new_time;
-                new_time.tv_sec = ct.ToTimeT();
-                new_time.tv_usec = static_cast<long>(ct.mSecondsFraction * 1000000.0f);
-                if (settimeofday(&new_time, nullptr) == 0)
+                timeval tv;
+                tv.tv_sec  = ct.ToTimeT();
+                tv.tv_usec = static_cast<long>(ct.mSecondsFraction * 1000000.0f);
+                if (settimeofday(&tv, nullptr) == 0)
                     TimeSet = true;
-                else
-                    Serial.println("Error setting time of day");
                 ct.Dump();
                 Serial.println();
             }
@@ -264,162 +59,148 @@ namespace Bluetooth
             {
                 Serial.println("StartTimeService failed (continuing)");
             }
-
-            Connected = true;
-            Serial.println("Connected and services started");
             return true;
         }
 
-    } // anonymous namespace
+        class ServerCallbacks : public NimBLEServerCallbacks
+        {
+            void onConnect(NimBLEServer *s, NimBLEConnInfo &connInfo) override
+            {
+                Serial.printf("Phone connected: %s\n", connInfo.getAddress().toString().c_str());
+                Client    = s->getClient(connInfo); // client over the inbound connection
+                PeerAddr  = connInfo.getAddress().toString();
+                Secured   = connInfo.isEncrypted();
+                NeedSetup = true;
+                Connected = false;
+            }
 
-    // ---------------------------------------------------------------------
-    // Public API
-    // ---------------------------------------------------------------------
+            void onDisconnect(NimBLEServer *s, NimBLEConnInfo &connInfo, int reason) override
+            {
+                Serial.printf("Phone disconnected: %s reason=%d\n",
+                              connInfo.getAddress().toString().c_str(), reason);
+                Connected = false;
+                NeedSetup = false;
+                Secured   = false;
+                Client    = nullptr;
+                PeerAddr.clear();
+                // advertiseOnDisconnect(true) restarts advertising automatically.
+            }
+
+            void onAuthenticationComplete(NimBLEConnInfo &connInfo) override
+            {
+                Serial.printf("Auth complete: bonded=%d encrypted=%d authenticated=%d\n",
+                              connInfo.isBonded(), connInfo.isEncrypted(), connInfo.isAuthenticated());
+                Secured = connInfo.isEncrypted();
+            }
+        };
+
+        ServerCallbacks serverCb;
+
+        void startAdvertising(const std::string &name)
+        {
+            NimBLEAdvertising *adv = Server->getAdvertising();
+
+            // Everything goes in the PRIMARY advertising packet (fits in 31 bytes:
+            // 3 flags + 9 name + 18 solicitation = 30). iOS Settings only lists a
+            // device whose name is in the primary packet — a scan-response-only name
+            // is often hidden. The AMS UUID is advertised as a *solicited* service
+            // (AD type 0x15, 128-bit) so iOS knows we want its Apple Media Service
+            // (NimBLE issue #1033). AD structure = [len][type=0x15][16 UUID bytes LE].
+            NimBLEAdvertisementData advData;
+            advData.setFlags(0x06); // LE General Discoverable, BR/EDR not supported
+            advData.setName(name);  // Complete Local Name in the primary packet
+
+            NimBLEUUID ams(APPLE_MEDIA_SERVICE_UUID);
+            uint8_t sol[18];
+            sol[0] = 0x11; // length: 1 (type) + 16 (uuid)
+            sol[1] = 0x15; // 128-bit service solicitation
+            memcpy(&sol[2], ams.getValue(), 16);
+            advData.addData(sol, sizeof(sol));
+
+            adv->setAdvertisementData(advData);
+
+            // Log the exact bytes going on air so we can verify with a BLE scanner.
+            std::vector<uint8_t> pl = advData.getPayload();
+            Serial.printf("Adv payload (%u bytes): ", (unsigned)pl.size());
+            for (uint8_t b : pl) Serial.printf("%02X ", b);
+            Serial.println();
+
+            adv->start();
+            Serial.printf("Advertising as '%s' — pair from iPhone Settings > Bluetooth\n", name.c_str());
+        }
+    } // anonymous namespace
 
     void Begin(const std::string &device_name)
     {
-        Serial.println("Bluetooth::Begin() AMS central + bonding");
+        Serial.println("Bluetooth::Begin() AMS peripheral (pair from phone)");
         esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
 
-        if (!StateMutex)
-            StateMutex = xSemaphoreCreateMutex();
-
-        Ended = false;
-        Connected = false;
-        ConnectPending = false;
-
         NimBLEDevice::init(device_name);
+        NimBLEDevice::setMTU(247); // larger ATT MTU so ANCS message bodies fit
 
         // Bonding ON, no MITM, LE Secure Connections -> iOS "Just Works" pairing
-        // whose keys are persisted in NVS, so reconnection is automatic/silent.
+        // (single Pair tap), keys persisted in NVS so reconnection is silent.
         NimBLEDevice::setSecurityAuth(/*bonding=*/true, /*mitm=*/false, /*sc=*/true);
         NimBLEDevice::setSecurityIOCap(BLE_HS_IO_NO_INPUT_OUTPUT);
 
-        NimBLEScan *scan = NimBLEDevice::getScan();
-        scan->setScanCallbacks(&scanCb);
-        scan->setActiveScan(true);
-        scan->setInterval(45);
-        scan->setWindow(30);
-        scan->setDuplicateFilter(false);
-        scan->setFilterPolicy(BLE_HCI_SCAN_FILT_NO_WL);
-        startScan();
+        Server = NimBLEDevice::createServer();
+        Server->setCallbacks(&serverCb);
+        Server->advertiseOnDisconnect(true);
+        startAdvertising(device_name);
 
         Serial.printf("Bluetooth::Begin finished (bonds stored: %d)\n", NimBLEDevice::getNumBonds());
     }
 
-    void End()
-    {
-        Serial.println("Bluetooth::End()");
-        Ended = true;
-
-        NimBLEScan *scan = NimBLEDevice::getScan();
-        if (scan)
-            scan->stop();
-
-        teardownClient();
-        NimBLEDevice::deinit(true);
-    }
-
     void Service()
     {
-        if (Ended)
+        // Once connected, drive deferred ANCS Control Point writes from this
+        // (loop) task — never from inside the notify callback.
+        if (Connected && Client && Client->isConnected())
+            AppleNotificationService::Process();
+
+        if (!(NeedSetup && Client && Client->isConnected() && !Connected))
             return;
 
-        // Detect a dropped link and clean up.
-        if (Client && !Client->isConnected())
-        {
-            Serial.println("Service: cleaning up dropped client");
-            teardownClient();
-            { Lock l; ConnectPending = false; }
-        }
-
-        // Honour a pending connect request (user pick or bonded auto-connect).
-        bool doConnect = false;
-        NimBLEAddress target;
-        {
-            Lock l;
-            if (ConnectPending && !Connected)
-            {
-                doConnect = true;
-                target = PendingAddr;
-                ConnectPending = false;
-            }
-        }
-        if (doConnect)
-        {
-            if (!connectTo(target))
-                startScan(); // failed, resume discovery
+        if (millis() - lastSetupAttempt < 800)
             return;
-        }
+        lastSetupAttempt = millis();
 
-        if (!Connected)
+        // Order matters (NimBLE issue #1033): secure the link first, then discover.
+        if (!Secured)
         {
-            // Belt-and-suspenders reconnect: if bonded but the scan hasn't
-            // surfaced the phone (RPA not resolved), try the stored identity
-            // directly every few seconds.
-            int bonds = NimBLEDevice::getNumBonds();
-            if (bonds > 0 && (millis() - lastReconnectAttempt > 8000))
+            Serial.println("Securing link — accept the pairing prompt on your iPhone...");
+            if (!Client->secureConnection())
             {
-                lastReconnectAttempt = millis();
-                requestConnect(NimBLEDevice::getBondedAddress(0));
+                Serial.println("Pairing not complete yet, will retry");
                 return;
             }
-            startScan(); // keep discovery alive for the portal
+            Secured = true;
+        }
+
+        if (startServices(Client))
+        {
+            Connected = true;
+            NeedSetup = false;
+            Serial.println("Connected — AMS + CTS up");
         }
     }
 
-    bool IsConnected()
-    {
-        return Connected && Client && Client->isConnected();
-    }
+    bool IsConnected() { return Connected && Client && Client->isConnected(); }
+    bool IsTimeSet()   { return TimeSet; }
+    bool HasBond()     { return NimBLEDevice::getNumBonds() > 0; }
 
-    bool IsTimeSet() { return TimeSet; }
-
-    bool HasBond() { return NimBLEDevice::getNumBonds() > 0; }
-
-    std::string ConnectedAddress()
-    {
-        if (IsConnected())
-            return Client->getPeerAddress().toString();
-        return "";
-    }
+    std::string ConnectedAddress() { return IsConnected() ? PeerAddr : std::string(); }
 
     void ClearBonds()
     {
         Serial.println("[BLE] Clearing all bonds...");
         NimBLEDevice::deleteAllBonds();
-        teardownClient();
-        { Lock l; ConnectPending = false; }
-        lastReconnectAttempt = 0;
-        startScan();
-        Serial.println("[BLE] Bonds cleared. On iPhone: Settings -> Bluetooth -> Forget this device, then re-pair from the setup page.");
-    }
-
-    std::vector<ScanCandidate> GetCandidates()
-    {
-        std::vector<ScanCandidate> out;
-        Lock l;
-        out.reserve(Candidates.size());
-        for (const auto &c : Candidates)
-            out.push_back({c.addr.toString(), c.name, c.rssi, c.isApple, c.bonded});
-        return out;
-    }
-
-    bool RequestConnect(const std::string &address)
-    {
-        Lock l;
-        for (const auto &c : Candidates)
-        {
-            if (c.addr.toString() == address)
-            {
-                PendingAddr = c.addr;
-                ConnectPending = true;
-                Serial.printf("Portal requested connect to %s\n", address.c_str());
-                return true;
-            }
-        }
-        Serial.printf("Portal requested unknown address %s\n", address.c_str());
-        return false;
+        if (Client && Client->isConnected())
+            Client->disconnect();
+        Connected = false;
+        NeedSetup = false;
+        Secured   = false;
+        Serial.println("[BLE] Bonds cleared. Also 'Forget this device' for CTRL 01 in iOS Settings, then re-pair.");
     }
 
 } // namespace Bluetooth

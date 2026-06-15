@@ -1,41 +1,33 @@
 #include <Arduino.h>
-#include <esp_sleep.h>
+#include <time.h>
+#include <esp_system.h>
+
 #include "apple_media_service.h"
-#include "Bluetooth.h"
-#include "setup_portal.h"
-#include "esp_system.h"
+#include "bluetooth.h"
+#include "wifi_manager.h"
+#include "web_portal.h"
 
-const unsigned long sleepTimeout = 1000 * 60 * 3; // 3 min
-const unsigned long displayTimeout = 1000 * 30;   // 30 sec
-
-// DisplayManager displayManager;
-unsigned long startTime = 0;
-bool disableDisplay = false;
-bool isConnected = false;
-unsigned long initialFreeHeap = 0;
-AppleMediaService::MediaInformation media_info;
-
-void onDataUpdateCallback(const AppleMediaService::MediaInformation &info)
+// Concise serial log on now-playing changes (the dashboard reads AMS state
+// directly; this is just a debug hook and a template for app-side reactions).
+void onMediaUpdate(const AppleMediaService::MediaInformation &info)
 {
- info.dump();
-  media_info = info;
+  Serial.printf("[AMS] %s — %s\n", info.mTitle.c_str(), info.mArtist.c_str());
 }
 
 void setup()
 {
-  initialFreeHeap = esp_get_free_heap_size() / 1024.0;
   Serial.begin(115200);
-
-  delay(1000); // wait for things to settle
+  delay(1000); // let USB-CDC / serial settle
 
   Bluetooth::Begin("CTRL 01");
   AppleMediaService::RegisterForNotifications(
-      onDataUpdateCallback,
+      onMediaUpdate,
       AppleMediaService::NotificationLevel::All);
 
-  // WiFi access point + web page for picking/pairing the phone and for status
-  // and remote control. SSID "CTRL 01 Setup", password "ctrl0101" (>=8 chars).
-  SetupPortal::Begin("CTRL 01 Setup", "ctrl0101");
+  // Networking: try saved WiFi (STA) → fall back to AP "CTRL 01 Setup"; mDNS
+  // exposes the dashboard at http://ctrl01.local. Then start the web dashboard.
+  WiFiManager::Begin("CTRL 01 Setup", "ctrl0101", "ctrl01");
+  WebPortal::Begin();
 
   esp_chip_info_t chip_info;
   esp_chip_info(&chip_info);
@@ -62,7 +54,9 @@ void setup()
     Serial.println("BLE (Bluetooth Low Energy): ❌ not available");
 
   Serial.println("================================");
-}void pollSerial()
+}
+
+void pollSerial()
 {
   static String line;
 
@@ -108,7 +102,7 @@ void setup()
             Serial.print("  ");
             Serial.println(cmd.name);
           }
-          Serial.println("  clearbonds  (clear BLE bonds + restart scan)");
+          Serial.println("  clearbonds  (forget phone + re-advertise for pairing)");
         }
         else if (line.equalsIgnoreCase("clearbonds")) {
           Bluetooth::ClearBonds();
@@ -149,7 +143,7 @@ void loop()
 {
 
   Bluetooth::Service();
-  SetupPortal::Handle();
+  WiFiManager::Handle();
 
   static uint32_t last = 0;
   if (millis() - last > 10000)

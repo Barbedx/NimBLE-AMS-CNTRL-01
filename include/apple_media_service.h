@@ -89,6 +89,9 @@ namespace AppleMediaService
     // overwrites existing notification if set.
     void RegisterForNotifications(const NotificationCb &callback, NotificationLevel level);
     const MediaInformation &GetMediaInformation();
+    // Live playback position: AMS only reports elapsed time on state changes, so
+    // we extrapolate from the last update using the playback rate while playing.
+    float CurrentElapsedTime();
     bool setRemoteCommandValue(uint8_t commandID);
     // Low-level sender (wraps your existing setRemoteCommandValue)
     inline bool SendRemoteCommand(RemoteCommandID cmd)
